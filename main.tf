@@ -35,7 +35,7 @@ resource "azurerm_lb_backend_address_pool" "backend_pool" {
 resource "azurerm_network_interface_backend_address_pool_association" "vm_backend_association" {
   for_each                  = var.vm_names
   network_interface_id      = data.azurerm_network_interface.vm_nics[each.key].id
-  ip_configuration_name     = "internal"
+  ip_configuration_name     = lookup(data.azurerm_network_interface.vm_nics[each.key].ip_configuration[0], "name", "default")
   backend_address_pool_id   = azurerm_lb_backend_address_pool.backend_pool.id
 }
 
