@@ -20,7 +20,7 @@ variable "public_ip_enabled" {
   type        = bool
   default     = true
 }
-
+ 
 variable "allocation_method" {
   description = "Defines the allocation method for the public IP address. Possible values are 'Static' or 'Dynamic'."
   type        = string
