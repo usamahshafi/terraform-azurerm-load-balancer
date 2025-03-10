@@ -32,6 +32,13 @@ resource "azurerm_lb_backend_address_pool" "backend_pool" {
   name            = "${local.lb_name}-backend-pool"
 }
 
+resource "azurerm_network_interface_backend_address_pool_association" "vm_backend_association" {
+  for_each                  = var.vm_names
+  network_interface_id      = data.azurerm_network_interface.vm_nics[each.key].id
+  ip_configuration_name     = "internal"
+  backend_address_pool_id   = azurerm_lb_backend_address_pool.backend_pool.id
+}
+
 resource "azurerm_lb_probe" "health_probe" {
   loadbalancer_id = azurerm_lb.main.id
   name            = "${local.lb_name}-health-probe"
