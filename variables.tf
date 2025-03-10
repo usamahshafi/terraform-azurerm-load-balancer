@@ -20,7 +20,7 @@ variable "public_ip_enabled" {
   type        = bool
   default     = true
 }
-
+ 
 variable "allocation_method" {
   description = "Defines the allocation method for the public IP address. Possible values are 'Static' or 'Dynamic'."
   type        = string
@@ -76,4 +76,24 @@ variable "tags" {
   description = "Tags for resources"
   type        = map(string)
   default     = {}
+}
+
+variable "vnet_name" {
+  description = "The name of the existing Virtual Network"
+  type        = string
+}
+
+variable "vnet_resource_group" {
+  description = "The resource group where the VNet is located"
+  type        = string
+}
+
+variable "vm_names" {
+  description = "A map of VM names to be added to the backend pool"
+  type        = map(string)
+}
+
+variable "vm_resource_group" {
+  description = "The resource group where the VMs are located"
+  type        = string
 }
