@@ -14,7 +14,7 @@ variable "location" {
   }
 }
 
-
+ 
 variable "public_ip_enabled" {
   description = "Enable public IP (true for external LB, false for internal LB)"
   type        = bool
