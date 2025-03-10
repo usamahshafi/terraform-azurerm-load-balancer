@@ -1,6 +1,10 @@
 # **Azure Load Balancer Terraform Module**
 
-This Terraform module deploys an **Azure Load Balancer (LB)** with optional **Public IP**
+This Terraform module deploys an **Azure Load Balancer (LB)** with support for:
+- **Public or Internal Load Balancer** with optional **Public IP**
+- **Backend Pool** to register Virtual Machines dynamically
+- **Health Probes** for monitoring
+- **Load Balancer Rules** for traffic distribution
 
 ## Requirements
 
@@ -27,8 +31,11 @@ No modules.
 | [azurerm_lb_backend_address_pool.backend_pool](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_backend_address_pool) | resource |
 | [azurerm_lb_probe.health_probe](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_probe) | resource |
 | [azurerm_lb_rule.lb_rule](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_rule) | resource |
+| [azurerm_network_interface_backend_address_pool_association.vm_backend_association](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_interface_backend_address_pool_association) | resource |
 | [azurerm_public_ip.lb_pip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource |
 | [azurerm_resource_group.azurerm-resource-group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
+| [azurerm_network_interface.vm_nics](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/network_interface) | data source |
+| [azurerm_virtual_network.vnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/virtual_network) | data source |
 
 ## Inputs
 
@@ -45,6 +52,10 @@ No modules.
 | <a name="input_probe_protocol"></a> [probe\_protocol](#input\_probe\_protocol) | Protocol for health probe | `string` | `"Tcp"` | no |
 | <a name="input_public_ip_enabled"></a> [public\_ip\_enabled](#input\_public\_ip\_enabled) | Enable public IP (true for external LB, false for internal LB) | `bool` | `true` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for resources | `map(string)` | `{}` | no |
+| <a name="input_vm_names"></a> [vm\_names](#input\_vm\_names) | A map of VM names to be added to the backend pool | `map(string)` | n/a | yes |
+| <a name="input_vm_resource_group"></a> [vm\_resource\_group](#input\_vm\_resource\_group) | The resource group where the VMs are located | `string` | n/a | yes |
+| <a name="input_vnet_name"></a> [vnet\_name](#input\_vnet\_name) | The name of the existing Virtual Network | `string` | n/a | yes |
+| <a name="input_vnet_resource_group"></a> [vnet\_resource\_group](#input\_vnet\_resource\_group) | The resource group where the VNet is located | `string` | n/a | yes |
 
 ## Outputs
 
@@ -58,15 +69,24 @@ No modules.
 | <a name="output_lb_public_ip"></a> [lb\_public\_ip](#output\_lb\_public\_ip) | The public IP address of the Load Balancer (if enabled) |
 | <a name="output_lb_rule_id"></a> [lb\_rule\_id](#output\_lb\_rule\_id) | The ID of the Load Balancer rule |
 
-### **Usage Example**
+---
+
+## **Example Usage**
 ```hcl
 module "lb" {
-  source  = "path/to/this/module"
+  source              = "path/to/this/module"
+  location            = "East US"
+  lb_sku              = "Standard"
+  public_ip_enabled   = true
+  prefix              = "my-lb"
+  vnet_name           = "my-vnet"
+  vnet_resource_group = "my-network-rg"
+  vm_resource_group   = "my-vm-rg"
 
-  location          = "East US"
-  lb_sku           = "Standard"
-  public_ip_enabled = true
-  prefix           = "my-lb"
+  vm_names = {
+    "vm1" = "vm1-nic"
+    "vm2" = "vm2-nic"
+  }
 
   tags = {
     environment = "prod"
