@@ -28,7 +28,13 @@ output "health_probe_id" {
   value       = azurerm_lb_probe.health_probe.id
 }
 
-output "lb_rule_id" {
-  description = "The ID of the Load Balancer rule"
-  value       = azurerm_lb_rule.lb_rule.id
+output "lb_rule_ids" {
+  description = "The IDs of the Load Balancer rules"
+  value       = { for k, v in azurerm_lb_rule.lb_rules : k => v.id }
 }
+
+output "lb_nat_rule_ids" {
+  description = "The IDs of the Load Balancer NAT rules"
+  value       = { for k, v in azurerm_lb_nat_rule.nat_rules : k => v.id }
+}
+

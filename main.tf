@@ -39,6 +39,13 @@ resource "azurerm_network_interface_backend_address_pool_association" "vm_backen
   backend_address_pool_id   = azurerm_lb_backend_address_pool.backend_pool.id
 }
 
+resource "azurerm_network_interface_nat_rule_association" "nat_association" {
+  for_each                      = var.lb_nat_rules
+  network_interface_id          = data.azurerm_network_interface.vm_nics[each.value.target_vm].id
+  ip_configuration_name         = lookup(data.azurerm_network_interface.vm_nics[each.value.target_vm].ip_configuration[0], "name", "default")
+  nat_rule_id                   = azurerm_lb_nat_rule.nat_rules[each.key].id
+}
+
 resource "azurerm_lb_probe" "health_probe" {
   loadbalancer_id = azurerm_lb.main.id
   name            = "${local.lb_name}-health-probe"
@@ -46,13 +53,25 @@ resource "azurerm_lb_probe" "health_probe" {
   port            = var.probe_port
 }
 
-resource "azurerm_lb_rule" "lb_rule" {
+resource "azurerm_lb_rule" "lb_rules" {
+  for_each                      = var.lb_rules
   loadbalancer_id                = azurerm_lb.main.id
-  name                           = "${local.lb_name}-rule"
-  protocol                       = var.lb_rule_protocol
-  frontend_port                  = var.lb_rule_frontend_port
-  backend_port                   = var.lb_rule_backend_port
+  name                           = each.value.name
+  protocol                       = each.value.protocol
+  frontend_port                  = each.value.frontend_port
+  backend_port                   = each.value.backend_port
   frontend_ip_configuration_name = local.frontend_ip_config_name
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.backend_pool.id]
   probe_id                       = azurerm_lb_probe.health_probe.id
+}
+
+resource "azurerm_lb_nat_rule" "nat_rules" {
+  for_each                      = var.lb_nat_rules
+  resource_group_name = azurerm_resource_group.azurerm-resource-group.name
+  loadbalancer_id                = azurerm_lb.main.id
+  name                           = each.value.name
+  protocol                       = each.value.protocol
+  frontend_port                  = each.value.frontend_port
+  backend_port                   = each.value.backend_port
+  frontend_ip_configuration_name = local.frontend_ip_config_name
 }

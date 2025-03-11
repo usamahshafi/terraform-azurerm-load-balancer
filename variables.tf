@@ -54,38 +54,33 @@ variable "probe_port" {
   default     = 80
 }
 
-variable "lb_rule_protocol" {
-  description = "Protocol for LB rule"
-  type        = string
-  default     = "Tcp"
+variable "lb_rules" {
+  description = "List of Load Balancer rules"
+  type = map(object({
+    name           = string
+    protocol       = string
+    frontend_port  = number
+    backend_port   = number
+  }))
+  default = {}
 }
 
-variable "lb_rule_frontend_port" {
-  description = "Frontend port for LB rule"
-  type        = number
-  default     = 80
-}
-
-variable "lb_rule_backend_port" {
-  description = "Backend port for LB rule"
-  type        = number
-  default     = 80
+variable "lb_nat_rules" {
+  description = "List of Load Balancer NAT rules"
+  type = map(object({
+    name                          = string
+    protocol                      = string
+    frontend_port                 = number
+    backend_port                  = number
+    target_vm                     = string
+  }))
+  default = {}
 }
 
 variable "tags" {
   description = "Tags for resources"
   type        = map(string)
   default     = {}
-}
-
-variable "vnet_name" {
-  description = "The name of the existing Virtual Network"
-  type        = string
-}
-
-variable "vnet_resource_group" {
-  description = "The resource group where the VNet is located"
-  type        = string
 }
 
 variable "vm_names" {
