@@ -1,3 +1,5 @@
 .terraform
+example/.terraform
 .terraform.lock.hcl
+example/.terraform.lock.hcl
 backend.tf
