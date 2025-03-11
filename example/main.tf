@@ -16,7 +16,7 @@ terraform {
   required_version = ">=1.9.0"
 }
 
-provider "azurerm" {
+provider "azurerm" { 
     features {
       
     }
