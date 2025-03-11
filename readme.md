@@ -1,3 +1,11 @@
+# **Azure Load Balancer Terraform Module**
+
+This Terraform module deploys an **Azure Load Balancer (LB)** with support for:
+- **Public or Internal Load Balancer** with optional **Public IP**
+- **Backend Pool** to register Virtual Machines dynamically
+- **Health Probes** for monitoring
+- **Load Balancer Rules** for traffic distribution
+- **Inbound NAT Rules** for secure communication
 ## Requirements
 
 | Name | Version |
@@ -59,3 +67,56 @@ No modules.
 | <a name="output_lb_private_ip"></a> [lb\_private\_ip](#output\_lb\_private\_ip) | The private IP address of the Load Balancer (if internal) |
 | <a name="output_lb_public_ip"></a> [lb\_public\_ip](#output\_lb\_public\_ip) | The public IP address of the Load Balancer (if enabled) |
 | <a name="output_lb_rule_ids"></a> [lb\_rule\_ids](#output\_lb\_rule\_ids) | The IDs of the Load Balancer rules |
+
+---
+
+## **Example Usage**
+```hcl
+module "load_balancer" {
+  source = "../"  
+
+  prefix             = "test"
+  location           = "East US"
+  vm_resource_group  = "terraform-backend"
+  lb_sku            = "Standard"
+  public_ip_enabled = true
+  allocation_method = "Static"
+
+  vm_names = {
+    "vm1" = "test-vm23" // Value is NIC name
+  }
+
+  lb_rules = {
+    rule1 = {
+      name          = "http-rule"
+      protocol      = "Tcp"
+      frontend_port = 80
+      backend_port  = 80
+    }
+    rule2 = {
+      name          = "https-rule"
+      protocol      = "Tcp"
+      frontend_port = 443
+      backend_port  = 443
+    }
+  }
+
+  lb_nat_rules = {
+    nat1 = {
+      name          = "ssh-rule"
+      protocol      = "Tcp"
+      frontend_port = 22
+      backend_port  = 22
+      target_vm     = "vm1"
+    }
+  }
+
+  probe_protocol = "Tcp"
+  probe_port     = 80
+
+  tags = {
+    environment = "dev"
+    project     = "terraform-lb"
+  }
+}
+```hcl
